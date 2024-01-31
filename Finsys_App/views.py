@@ -434,7 +434,65 @@ def  Fin_ADpayment_terms_Updation_Reject(request,id):
 
     return redirect('Fin_Anotification')
 
- 
+# -------------------------- admin updates ------------------------------------ 
+
+def Fin_remove_payment_terms(request,pk):
+    payment_term=Fin_Payment_Terms.objects.get(id=pk)
+    payment_term.delete()
+    messages.success(request, 'Payment term is removed')
+    return redirect('Fin_PaymentTerm')
+
+def Fin_Clients_under_distributors(request):
+   distributors=Fin_Distributors_Details.objects.filter(Admin_approval_status="Accept")
+   noti = Fin_ANotification.objects.filter(status = 'New')
+   n = len(noti)
+
+   context={
+        'noti':noti,
+        'n':n,
+        'distributors':distributors
+    }
+   return render(request,"Admin/Fin_clients_under_distributors.html", context)
+
+def get_clients_under_distributor(request):
+  if request.method == 'GET':
+    distributor_id = request.GET.get('distributor_id')
+    
+    # Query your database to fetch employee details based on the employee_id.
+
+    company = Fin_Company_Details.objects.filter(Distributor_id=distributor_id,Admin_approval_status='Accept',Distributor_approval_status='Accept').order_by('-id')
+    company_details=[]
+
+    for i in company:
+      cmp_id=i.id
+      name=i.Company_name
+      email=i.Email
+      contact=i.Contact
+      pterm_no=i.Payment_Term.payment_terms_number if i.Payment_Term else 'Trial'
+      pterm_value=i.Payment_Term.payment_terms_value if i.Payment_Term else 'Period'
+      sdate=i.Start_Date
+      edate=i.End_date
+
+      company_details.append({
+        'cmp_id':cmp_id,
+        'name':name,
+        'email':email,
+        'contact':contact,
+        'pterm_no':pterm_no,
+        'pterm_value':pterm_value,
+        'sdate':sdate,
+        'edate':edate
+      })
+    
+    # You might want to serialize the 'company_details' to a JSON format.
+    return JsonResponse({'details': company_details})
+
+  else:
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
+
+
+
 # ---------------------------end admin ------------------------------------ 
 
 
