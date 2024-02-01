@@ -465,7 +465,8 @@ def get_clients_under_distributor(request):
 
     for i in company:
       cmp_id=i.id
-      name=i.Company_name
+      fname=i.Login_Id.First_name 
+      lname=i.Login_Id.Last_name
       email=i.Email
       contact=i.Contact
       pterm_no=i.Payment_Term.payment_terms_number if i.Payment_Term else 'Trial'
@@ -475,7 +476,8 @@ def get_clients_under_distributor(request):
 
       company_details.append({
         'cmp_id':cmp_id,
-        'name':name,
+        'fname':fname,
+        'lname':lname,
         'email':email,
         'contact':contact,
         'pterm_no':pterm_no,
@@ -491,6 +493,18 @@ def get_clients_under_distributor(request):
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 
+def distributor_client_profile_details(request,pk):
+    data = Fin_Company_Details.objects.get(id=pk)
+    allmodules = Fin_Modules_List.objects.get(company_id = pk,status = "New")
+    noti = Fin_ANotification.objects.filter(status = 'New')
+    n = len(noti)
+ 
+
+    context={
+        'data':data,'allmodules':allmodules,'noti':noti,'n':n
+    }
+
+    return render(request,'Admin/distributor_client_profile_details.html',context)
 
 
 # ---------------------------end admin ------------------------------------ 

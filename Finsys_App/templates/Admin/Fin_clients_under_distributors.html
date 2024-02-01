@@ -25,43 +25,43 @@
 
 
     <div class="card radius-15" id="clienttable" style="display: none;">
-      <a href="">
-        <div class="card-body">
-          <h5 class="text-white">Clients <span class="text-warning-emphasis h6">(under this distributor)</span></h5>
-          <div class="table-responsive">
-            <table class="table mt-4 table-hover" id="client-details">
-              <thead>
-                <tr>
-                  <th  style="text-align: center; text-transform: uppercase;">ID</th>
-                  <th  style="text-align: center; text-transform: uppercase;">Name</th>
-                  <th  style="text-align: center; text-transform: uppercase;">Email</th>
-                  <th  style="text-align: center; text-transform: uppercase;">Contact</th>
-                  <th  style="text-align: center; text-transform: uppercase;">Payment Terms</th>
-                  <th  style="text-align: center; text-transform: uppercase;">Start Date</th>
-                  <th  style="text-align: center; text-transform: uppercase;">End Date</th>
-                  <th  style="text-align: center; text-transform: uppercase;">Action</th>
+      
+      <div class="card-body">
+        <h5 class="text-white">Clients <span class="text-warning-emphasis h6">(under this distributor)</span></h5>
+        <div class="table-responsive">
+          <table class="table mt-4 table-hover" id="client-details">
+            <thead>
+              <tr>
+                <th  style="text-align: center; text-transform: uppercase;">ID</th>
+                <th  style="text-align: center; text-transform: uppercase;">Name</th>
+                <th  style="text-align: center; text-transform: uppercase;">Email</th>
+                <th  style="text-align: center; text-transform: uppercase;">Contact</th>
+                <th  style="text-align: center; text-transform: uppercase;">Payment Terms</th>
+                <th  style="text-align: center; text-transform: uppercase;">Start Date</th>
+                <th  style="text-align: center; text-transform: uppercase;">End Date</th>
+                <th  style="text-align: center; text-transform: uppercase;">Action</th>
 
-                </tr>
-              </thead>
-              <tbody>
-                {% for d in data %}
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                    
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in data %}
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                  
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
-          </div>
         </div>
-      </a>
+      </div>
+  
     </div>
 
   </div>
@@ -97,7 +97,7 @@
               var newRow = `
                 <tr>
                   <td style="text-align: center;">${i + 1}</td>
-                  <td style="text-align: center;">${company.name}</td>
+                  <td style="text-align: center;">${company.fname} ${company.lname}</td>
                   <td style="text-align: center;">${company.email}</td>
                   <td style="text-align: center;">${company.contact}</td>
                   <td style="text-align: center;">${company.pterm_no} ${company.pterm_value}</td>
@@ -116,7 +116,7 @@
               $('.details').on('click', function (event) {
                 event.preventDefault();
                 var compId = $(this).data('comp-id');
-                window.location.href = ''.replace('0', compId);
+                window.location.href = '{% url "distributor_client_profile_details" 0 %}'.replace('0', compId);
               });
           }
         });

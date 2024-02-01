@@ -655,3 +655,15 @@ class Holiday_History(models.Model):
     holiday = models.ForeignKey(Holiday,on_delete=models.CASCADE,blank=True,null=True)
     date = models.DateField(null=True,blank=True)
     action = models.CharField(max_length=255,null=True,blank=True)
+
+# --------------------Trial Period-------------------------------
+
+class TrialPeriod(models.Model):
+    company = models.OneToOneField(CompanyDetails, on_delete=models.CASCADE)
+    start_date = models.DateField(auto_now_add=True)
+    end_date = models.DateField()
+    interested_in_buying = models.BooleanField(default=0)
+    feedback = models.TextField(blank=True, null=True)
+
+    def is_active(self):
+        return self.end_date >= timezone.now().date()
