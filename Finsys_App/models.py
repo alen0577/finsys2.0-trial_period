@@ -659,7 +659,7 @@ class Holiday_History(models.Model):
 # --------------------Trial Period-------------------------------
 
 class TrialPeriod(models.Model):
-    company = models.OneToOneField(CompanyDetails, on_delete=models.CASCADE)
+    company = models.OneToOneField(Fin_Company_Details, on_delete=models.CASCADE)
     start_date = models.DateField(auto_now_add=True)
     end_date = models.DateField()
     interested_in_buying = models.BooleanField(default=0)
