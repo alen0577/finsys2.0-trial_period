@@ -250,11 +250,14 @@ urlpatterns = [
     path('Render_pdfstatment_view/<int:id>',views.Fin_render_pdfstatment_view,name='Fin_render_pdfstatment_view'),
     #End
     
-    # ---------------Admin----------------
+    # ---------------Admin updates----------------
     path('remove_payment_terms/<int:pk>',views.Fin_remove_payment_terms,name='Fin_remove_payment_terms'),
     path('Clients_under_Distributors',views.Fin_Clients_under_distributors,name='Fin_Clients_under_distributors'),
     path('getClients_Under_Distributor',views.get_clients_under_distributor,name='get_clients_under_distributor'),
     path('Distributor/client/details/<int:pk>',views.distributor_client_profile_details,name='distributor_client_profile_details'),
+
+    # ---------------Distributor updates----------------
+    path('DClient/Trial_Period/Details',views.Fin_trial_periodclients,name='Fin_trial_periodclients'),
 
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]

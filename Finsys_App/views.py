@@ -293,7 +293,6 @@ def  Fin_Anoti_Overview(request,id):
     n = len(noti)
 
     
-
     data = Fin_ANotification.objects.get(id=id)
 
     if data.Login_Id.User_Type == "Company":
@@ -332,8 +331,7 @@ def  Fin_Anoti_Overview(request,id):
                 elif new_values[field] < previous_values[field]:
                     deducted_modules[field] = previous_values[field] - new_values[field]
             
-            print(added_modules)
-            print(deducted_modules)
+           
             context = {
                 'noti':noti,
                 'n':n,
@@ -765,6 +763,36 @@ def  Fin_Dnoti_Overview(request,id):
             allmodules = Fin_Modules_List.objects.get(Login_Id = data.Login_Id,status = "New")
             allmodules1 = Fin_Modules_List.objects.get(Login_Id = data.Login_Id,status = "pending")
 
+            modules_pending = Fin_Modules_List.objects.filter(Login_Id = data.Login_Id,status = "pending")
+            current_modules = Fin_Modules_List.objects.filter(Login_Id = data.Login_Id,status = "New")
+
+            # Extract the field names related to modules
+            module_fields = [field.name for field in Fin_Modules_List._meta.fields if field.name not in ['id', 'company', 'status', 'update_action','company_id', 'Login_Id' ]]
+
+            # Get the previous and new values for the selected modules
+            previous_values = current_modules.values(*module_fields).first()
+            new_values = modules_pending.values(*module_fields).first()
+
+            # Iterate through the dictionary and replace None with 0
+            for key, value in previous_values.items():
+                if value is None:
+                    previous_values[key] = 0
+
+            # Iterate through the dictionary and replace None with 0
+            for key, value in new_values.items():
+                if value is None:
+                    new_values[key] = 0
+
+            # Identify added and deducted modules
+            added_modules = {}
+            deducted_modules = {}
+
+            for field in module_fields:
+                if new_values[field] > previous_values[field]:
+                    added_modules[field] = new_values[field] - previous_values[field]
+                elif new_values[field] < previous_values[field]:
+                    deducted_modules[field] = previous_values[field] - new_values[field]
+
         
             context = {
                 'noti':noti,
@@ -772,8 +800,15 @@ def  Fin_Dnoti_Overview(request,id):
                 'data':data,
                 'allmodules':allmodules,
                 'allmodules1':allmodules1,
+                'current_modules': current_modules,
+                'modules_pending': modules_pending,
+                'previous_values': previous_values,
+                'new_values': new_values,
+                'added_modules': added_modules,
+                'deducted_modules': deducted_modules,
             }
             return render(request,'Distributor/Fin_Dnoti_Overview.html',context)
+
         else:
             data1 = Fin_Company_Details.objects.get(Login_Id = data.Login_Id)
             context = {
@@ -909,6 +944,33 @@ def Fin_Edit_Dprofile_Action(request):
         return redirect('Fin_Edit_Dprofile')     
     else:
        return redirect('/')     
+
+
+# --------------------------- distributor updates------------------------------------
+  
+# ----Trial period section------
+
+def Fin_trial_periodclients(request):
+
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Distributors_Details.objects.get(Login_Id = s_id)
+        com = Fin_Distributors_Details.objects.get(Login_Id = s_id)
+        noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id =com)
+        n = len(noti)
+
+        clients=TrialPeriod.objects.filter(company__Distributor_id=com).order_by('-id')
+        context={
+            'data':data,
+            'com': com,
+            'clients':clients,
+            'n':n,
+            'noti':noti
+
+        }
+        return render(request,'Distributor/Fin_trial_period_client.html', context)
+    else:
+        return redirect('/')
 
       
 # ---------------------------end distributor------------------------------------  
@@ -1166,55 +1228,55 @@ def Fin_Add_Modules(request,id):
 
         # -----ITEMS----
 
-        Items = request.POST.get('c1',0)
-        Price_List = request.POST.get('c2',0)
-        Stock_Adjustment = request.POST.get('c3',0)
+        Items = request.POST.get('c1')
+        Price_List = request.POST.get('c2')
+        Stock_Adjustment = request.POST.get('c3')
 
 
         # --------- CASH & BANK-----
-        Cash_in_hand = request.POST.get('c4',0)
-        Offline_Banking = request.POST.get('c5',0)
+        Cash_in_hand = request.POST.get('c4')
+        Offline_Banking = request.POST.get('c5')
         # Bank_Reconciliation = request.POST.get('c6')
-        UPI = request.POST.get('c7',0)
-        Bank_Holders = request.POST.get('c8',0)
+        UPI = request.POST.get('c7')
+        Bank_Holders = request.POST.get('c8')
         Cheque = request.POST.get('c9',0)
-        Loan_Account = request.POST.get('c10',0)
+        Loan_Account = request.POST.get('c10')
 
         #  ------SALES MODULE -------
-        Customers = request.POST.get('c11',0)
-        Invoice  = request.POST.get('c12',0)
-        Estimate = request.POST.get('c13',0)
-        Sales_Order = request.POST.get('c14',0)
-        Recurring_Invoice = request.POST.get('c15',0)
-        Retainer_Invoice = request.POST.get('c16',0)
-        Credit_Note = request.POST.get('c17',0)
-        Payment_Received = request.POST.get('c18',0)
-        Delivery_Challan = request.POST.get('c19',0)
+        Customers = request.POST.get('c11')
+        Invoice  = request.POST.get('c12')
+        Estimate = request.POST.get('c13')
+        Sales_Order = request.POST.get('c14')
+        Recurring_Invoice = request.POST.get('c15')
+        Retainer_Invoice = request.POST.get('c16')
+        Credit_Note = request.POST.get('c17')
+        Payment_Received = request.POST.get('c18')
+        Delivery_Challan = request.POST.get('c19')
 
         #  ---------PURCHASE MODULE--------- 
-        Vendors = request.POST.get('c20',0) 
-        Bills  = request.POST.get('c21',0)
-        Recurring_Bills = request.POST.get('c22',0)
-        Debit_Note = request.POST.get('c23',0)
-        Purchase_Order = request.POST.get('c24',0)
-        Expenses = request.POST.get('c25',0)
-        Payment_Made = request.POST.get('c27',0)
+        Vendors = request.POST.get('c20') 
+        Bills  = request.POST.get('c21')
+        Recurring_Bills = request.POST.get('c22')
+        Debit_Note = request.POST.get('c23')
+        Purchase_Order = request.POST.get('c24')
+        Expenses = request.POST.get('c25')
+        Payment_Made = request.POST.get('c27')
 
         #  ---------EWay_Bill---------
-        EWay_Bill = request.POST.get('c28',0)
+        EWay_Bill = request.POST.get('c28')
 
         #  -------ACCOUNTS--------- 
-        Chart_of_Accounts = request.POST.get('c29',0) 
-        Manual_Journal = request.POST.get('c30',0)
+        Chart_of_Accounts = request.POST.get('c29') 
+        Manual_Journal = request.POST.get('c30')
         # Reconcile  = request.POST.get('c36')
 
 
         # -------PAYROLL------- 
-        Employees = request.POST.get('c31',0)
-        Employees_Loan = request.POST.get('c32',0)
-        Holiday = request.POST.get('c33',0) 
-        Attendance = request.POST.get('c34',0)
-        Salary_Details = request.POST.get('c35',0)
+        Employees = request.POST.get('c31')
+        Employees_Loan = request.POST.get('c32')
+        Holiday = request.POST.get('c33') 
+        Attendance = request.POST.get('c34')
+        Salary_Details = request.POST.get('c35')
 
         modules = Fin_Modules_List(Items = Items,Price_List = Price_List,Stock_Adjustment = Stock_Adjustment,
             Cash_in_hand = Cash_in_hand,Offline_Banking = Offline_Banking,
@@ -1377,56 +1439,56 @@ def Fin_Edit_Modules_Action(request):
 
             # -----ITEMS----
 
-            Items = request.POST.get('c1',0)
-            Price_List = request.POST.get('c2',0)
-            Stock_Adjustment = request.POST.get('c3,',0)
+            Items = request.POST.get('c1')
+            Price_List = request.POST.get('c2')
+            Stock_Adjustment = request.POST.get('c3')
 
 
             # --------- CASH & BANK-----
-            Cash_in_hand = request.POST.get('c4',0)
-            Offline_Banking = request.POST.get('c5',0)
+            Cash_in_hand = request.POST.get('c4')
+            Offline_Banking = request.POST.get('c5')
             # Bank_Reconciliation = request.POST.get('c6')
-            UPI = request.POST.get('c7',0)
-            Bank_Holders = request.POST.get('c8',0)
-            Cheque = request.POST.get('c9',0)
-            Loan_Account = request.POST.get('c10',0)
+            UPI = request.POST.get('c7')
+            Bank_Holders = request.POST.get('c8')
+            Cheque = request.POST.get('c9')
+            Loan_Account = request.POST.get('c10')
 
             #  ------SALES MODULE -------
-            Customers = request.POST.get('c11',0)
-            Invoice  = request.POST.get('c12',0)
-            Estimate = request.POST.get('c13',0)
-            Sales_Order = request.POST.get('c14',0)
-            Recurring_Invoice = request.POST.get('c15',0)
-            Retainer_Invoice = request.POST.get('c16',0)
-            Credit_Note = request.POST.get('c17',0)
-            Payment_Received = request.POST.get('c18',0)
-            Delivery_Challan = request.POST.get('c19',0)
+            Customers = request.POST.get('c11')
+            Invoice  = request.POST.get('c12')
+            Estimate = request.POST.get('c13')
+            Sales_Order = request.POST.get('c14')
+            Recurring_Invoice = request.POST.get('c15')
+            Retainer_Invoice = request.POST.get('c16')
+            Credit_Note = request.POST.get('c17')
+            Payment_Received = request.POST.get('c18')
+            Delivery_Challan = request.POST.get('c19')
 
             #  ---------PURCHASE MODULE--------- 
-            Vendors = request.POST.get('c20',0) 
-            Bills  = request.POST.get('c21',0)
-            Recurring_Bills = request.POST.get('c22',0)
-            Debit_Note = request.POST.get('c23',0)
-            Purchase_Order = request.POST.get('c24',0)
-            Expenses = request.POST.get('c25',0)
+            Vendors = request.POST.get('c20') 
+            Bills  = request.POST.get('c21')
+            Recurring_Bills = request.POST.get('c22')
+            Debit_Note = request.POST.get('c23')
+            Purchase_Order = request.POST.get('c24')
+            Expenses = request.POST.get('c25')
             
-            Payment_Made = request.POST.get('c27',0)
+            Payment_Made = request.POST.get('c27')
 
             # ----------EWay_Bill-----
-            EWay_Bill = request.POST.get('c28',0)
+            EWay_Bill = request.POST.get('c28')
 
             #  -------ACCOUNTS--------- 
-            Chart_of_Accounts = request.POST.get('c29',0) 
-            Manual_Journal = request.POST.get('c30',0)
+            Chart_of_Accounts = request.POST.get('c29') 
+            Manual_Journal = request.POST.get('c30')
             # Reconcile  = request.POST.get('c36')
 
 
             # -------PAYROLL------- 
-            Employees = request.POST.get('c31',0)
-            Employees_Loan = request.POST.get('c32',0)
-            Holiday = request.POST.get('c33',0) 
-            Attendance = request.POST.get('c34',0)
-            Salary_Details = request.POST.get('c35',0)
+            Employees = request.POST.get('c31')
+            Employees_Loan = request.POST.get('c32')
+            Holiday = request.POST.get('c33') 
+            Attendance = request.POST.get('c34')
+            Salary_Details = request.POST.get('c35')
 
             modules = Fin_Modules_List(Items = Items,Price_List = Price_List,Stock_Adjustment = Stock_Adjustment,
                 Cash_in_hand = Cash_in_hand,Offline_Banking = Offline_Banking,
