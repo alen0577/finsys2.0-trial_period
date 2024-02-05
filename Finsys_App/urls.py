@@ -258,6 +258,10 @@ urlpatterns = [
 
     # ---------------Distributor updates----------------
     path('DClient/Trial_Period/Details',views.Fin_trial_periodclients,name='Fin_trial_periodclients'),
+    path('Admin/Trial_Period/Section',views.Fin_Admin_trial_period_section,name='Fin_Admin_trial_period_section'),
+    path('Admin/Trial_Period/Clients',views.Fin_Admin_trial_period_clients,name='Fin_Admin_trial_period_clients'),
+    path('Admin/Trial_Period/Distributor-Clients',views.Fin_Admin_trial_period_distributor_clients,name='Fin_Admin_trial_period_distributor_clients'),
+
 
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
 ]

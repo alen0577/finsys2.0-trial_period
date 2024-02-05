@@ -657,6 +657,7 @@ class Holiday_History(models.Model):
     action = models.CharField(max_length=255,null=True,blank=True)
 
 # --------------------Trial Period-------------------------------
+from django.utils import timezone
 
 class TrialPeriod(models.Model):
     company = models.OneToOneField(Fin_Company_Details, on_delete=models.CASCADE)

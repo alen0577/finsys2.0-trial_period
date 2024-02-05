@@ -541,6 +541,42 @@ def distributor_client_profile_details(request,pk):
 
     return render(request,'Admin/distributor_client_profile_details.html',context)
 
+# ----Trial period section------
+
+def Fin_Admin_trial_period_section(request):
+    noti = Fin_ANotification.objects.filter(status = 'New')
+    n = len(noti)
+    context = {
+        'noti':noti,
+        'n':n
+    }
+    return render(request,'Admin/Fin_Admin_trial_period_section.html', context)
+
+
+def Fin_Admin_trial_period_clients(request):
+    noti = Fin_ANotification.objects.filter(status = 'New')
+    n = len(noti)
+    clients=TrialPeriod.objects.filter(company__Registration_Type='self').order_by('-id')
+    context={
+        'clients':clients,
+        'noti':noti,
+        'n':n
+    }
+    return render(request,'Admin/Fin_Admin_trial_period_clients.html', context)
+
+
+def Fin_Admin_trial_period_distributor_clients(request):
+    noti = Fin_ANotification.objects.filter(status = 'New')
+    n = len(noti)
+    distributors=Fin_Distributors_Details.objects.filter(Admin_approval_status='Accept')
+    clients=TrialPeriod.objects.filter(company__Registration_Type='distributor').order_by('-id')
+    context={
+        'clients':clients,
+        'distributors':distributors,
+        'noti':noti,
+        'n':n
+    }
+    return render(request,'Admin/Fin_Admin_trial_period_distributor_clients.html', context)
 
 # ---------------------------end admin ------------------------------------ 
 
