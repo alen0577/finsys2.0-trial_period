@@ -495,7 +495,7 @@ def get_clients_under_distributor(request):
     
     # Query your database to fetch employee details based on the employee_id.
 
-    company = Fin_Company_Details.objects.filter(Distributor_id=distributor_id,Admin_approval_status='Accept',Distributor_approval_status='Accept').order_by('-id')
+    company = Fin_Company_Details.objects.filter(Distributor_id=distributor_id,Distributor_approval_status='Accept').order_by('-id')
     company_details=[]
 
     for i in company:
@@ -556,7 +556,7 @@ def Fin_Admin_trial_period_section(request):
 def Fin_Admin_trial_period_clients(request):
     noti = Fin_ANotification.objects.filter(status = 'New')
     n = len(noti)
-    clients=TrialPeriod.objects.filter(company__Registration_Type='self').order_by('-id')
+    clients=TrialPeriod.objects.filter(company__Registration_Type='self',company__Admin_approval_status='Accept').order_by('-id')
     context={
         'clients':clients,
         'noti':noti,
@@ -569,7 +569,7 @@ def Fin_Admin_trial_period_distributor_clients(request):
     noti = Fin_ANotification.objects.filter(status = 'New')
     n = len(noti)
     distributors=Fin_Distributors_Details.objects.filter(Admin_approval_status='Accept')
-    clients=TrialPeriod.objects.filter(company__Registration_Type='distributor').order_by('-id')
+    clients=TrialPeriod.objects.filter(company__Registration_Type='distributor',company__Distributor_approval_status='Accept').order_by('-id')
     context={
         'clients':clients,
         'distributors':distributors,
@@ -995,7 +995,7 @@ def Fin_trial_periodclients(request):
         noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id =com)
         n = len(noti)
 
-        clients=TrialPeriod.objects.filter(company__Distributor_id=com).order_by('-id')
+        clients=TrialPeriod.objects.filter(company__Distributor_id=com,company__Distributor_approval_status='Accept').order_by('-id')
         context={
             'data':data,
             'com': com,
@@ -1241,16 +1241,21 @@ def Fin_CompanyReg2_action2(request,id):
                 return redirect('Fin_CompanyReg2',id)
             
         
-        payment_term = request.POST['payment_term']
-        terms=Fin_Payment_Terms.objects.get(id=payment_term)
-        com.Payment_Term =terms
+        # Create a Trial period instance and save to company details
         com.Start_Date=date.today()
-        days=int(terms.days)
-
+        days=int(30)
         end= date.today() + timedelta(days=days)
         com.End_date=end
-
         com.save()
+
+        # Create a Trial period instance and populate it with form data
+        trial_period=TrialPeriod(
+            company=com,
+            start_date=date.today(),
+            end_date=end
+        )
+        trial_period.save() # Save the instance to the database
+
         return redirect('Fin_Modules',id)
    
 def Fin_Modules(request,id):
