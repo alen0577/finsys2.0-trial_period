@@ -1106,12 +1106,25 @@ def Fin_Com_Home(request):
             noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com)
             n = len(noti)
 
+            # Calculate the date 20 days before the end date for payment term renew and 10 days before for trial period renew
+            if com.Payment_Term:
+                reminder_date = com.End_date - timedelta(days=20)
+            else:
+                reminder_date = com.End_date - timedelta(days=10)
+            current_date = date.today()
+            alert_message = current_date >= reminder_date
+            print(alert_message)
+            # Calculate the number of days between the reminder date and end date
+            days_left = (com.End_date - current_date).days
+
             context = {
                 'allmodules':allmodules,
                 'com':com,
                 'data':data,
                 'noti':noti,
-                'n':n
+                'n':n,
+                'alert_message':alert_message,
+                'days_left':days_left,
                 }
 
             return render(request,'company/Fin_Com_Home.html',context)
