@@ -171,9 +171,13 @@
                                 <label for="industry">Payment Term</label>
                                 <div class="d-flex">
                                     
+                                    {% if com.Payment_Term %}
                                     <input type="text" name="Payment_Term" id="Payment_Term" value="{{ com.Payment_Term.payment_terms_number }} {{ com.Payment_Term.payment_terms_value }}"
                                        class="form-control" style="border-radius: 10px 0px 0px 10px;background-color: #2f516f;color: white;" readonly>
-
+                                    {% else %}
+                                    <input type="text" name="Payment_Term" id="Payment_Term" value="Trial Period"
+                                       class="form-control" style="border-radius: 10px 0px 0px 10px;background-color: #2f516f;color: white;" readonly>
+                                    {% endif %}
                                        <!-- <button id="modal_closing" style="border-radius: 0px 10px 10px 0px;"
                                     title="change Payment Term" type="button" class="btn btn-info" data-bs-toggle="modal"
                                     data-bs-target="#partycreation" data-bs-whatever="@mdo"><i class="bx bx-plus"
@@ -299,10 +303,15 @@
                 <form action="{% url 'Fin_Change_payment_terms' %}" method="post" style="padding: 10px;">
                     {% csrf_token %}
                     <label for="" style="color: black;margin-left: 20px;">current Payment Term</label><br>
+
+                    {% if com.Payment_Term %}
                     <input type="text" value="{{ com.Payment_Term.payment_terms_number }} {{ com.Payment_Term.payment_terms_value }}" 
                     style="border: 1px solid gray; border-radius: 8px; font-weight: 500;width: 90%;margin-left: 20px;padding: 8px;margin-bottom: 10px;" readonly> <br>
-
-
+                    {% else %}
+                    <input type="text" value="Trial Period" 
+                    style="border: 1px solid gray; border-radius: 8px; font-weight: 500;width: 90%;margin-left: 20px;padding: 8px;margin-bottom: 10px;" readonly> <br>
+                    {% endif %}
+                    
                     <label for="" style="color: black;margin-left: 20px;">End Date</label><br>
                     <input type="text" value="{{ com.End_date }}" 
                     style="border: 1px solid gray; border-radius: 8px; font-weight: 500;width: 90%;margin-left: 20px;padding: 8px;margin-bottom: 10px;" readonly>

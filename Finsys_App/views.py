@@ -1097,13 +1097,18 @@ def Fin_Com_Home(request):
 
             current_day=date.today() 
             diff = (com.End_date - current_day).days
-            num = 20
-            print(diff)
-            if diff <= 20:
-                n=Fin_CNotification(Login_Id = data,Company_id = com,Title = "Payment Terms Alert",Discription = "Your Payment Terms End Soon")
-                n.save()    
+            
+            # payment term and trial period alert notifications
+            if com.Payment_Term:
+                if not Fin_CNotification.objects.filter(Company_id=com, Title="Payment Terms Alert").exists() and diff <= 20:
+                    n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
+                    n.save()
+            else:
+                if not Fin_CNotification.objects.filter(Company_id=com, Title="Trial Period Alert").exists() and diff <= 10:
+                    n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Trial Period Alert", Discription="Your Trial Period End Soon")
+                    n.save()
 
-            noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com)
+            noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com).order_by('-id','-Noti_date')
             n = len(noti)
 
             # Calculate the date 20 days before the end date for payment term renew and 10 days before for trial period renew
@@ -1113,7 +1118,7 @@ def Fin_Com_Home(request):
                 reminder_date = com.End_date - timedelta(days=10)
             current_date = date.today()
             alert_message = current_date >= reminder_date
-            print(alert_message)
+            
             # Calculate the number of days between the reminder date and end date
             days_left = (com.End_date - current_date).days
 
@@ -1143,7 +1148,7 @@ def Fin_Cnotification(request):
             com = Fin_Company_Details.objects.get(Login_Id = s_id)
             allmodules = Fin_Modules_List.objects.get(Login_Id = s_id,status = 'New')
 
-            noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com)
+            noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com).order_by('-id','-Noti_date')
             n = len(noti)
             context = {
                 'allmodules':allmodules,
@@ -6267,3 +6272,31 @@ def Fin_render_pdfstatment_view(request,id):
             return HttpResponse('We had some errors <pre>' + html + '</pre>')
         return response
 #-------------------------------------------------------------------------- end of banking----------------------------------------------------------------
+
+
+#------------- company updates-------------------
+
+def Fin_company_trial_feedback(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Login_Details.objects.get(id = s_id)
+        com = Fin_Company_Details.objects.get(Login_Id = s_id)
+        trial_instance = TrialPeriod.objects.get(company=com)
+        if request.method == 'POST':
+            interested = request.POST.get('interested')
+            feedback=request.POST.get('feedback') 
+            
+            trial_instance.interested_in_buying=1 if interested =='yes' else 2
+            trial_instance.feedback=feedback
+            trial_instance.save()
+
+            if interested =='yes':
+                return redirect('Fin_Company_Profile')
+            else:
+                return redirect('Fin_Com_Home')
+        else:
+            return redirect('Fin_Com_Home')
+    else:
+        return redirect('/')
+        
+         

@@ -539,20 +539,20 @@
           </button>
         </div>
 
-        {% if details.payment_term %}
+        {% if com.Payment_Term %}
       <div class="modal-body">
-        <h5 class="text-white mt-1 font-monospace">Your current plan is expiring on {{ details.End_date }}</h5>
+        <h6 class="text-white mt-1 ">Your current plan is expiring on {{ com.End_date }}</h6>
         <div class="row mb-3">
           <div class="col-md-4"></div>
           <div class="col-md-4"></div>
           <div class="col-md-4">
-            <a class="text-warning ms-5" href="{% url 'Fin_Company_Profile' %}"><small>click to renew</small></a>
+            <a class="btn btn-success ms-5" href="{% url 'Fin_Company_Profile' %}"><small>click to renew</small></a>
           </div>
         </div>
       </div>
       {% else %}
       <div class="modal-body">
-        <form action="" method="post">
+        <form action="{% url 'Fin_company_trial_feedback' %}" method="post">
           {% csrf_token %}
           <p class="text-white">Do you want to continue with our services?</p>
           <div class="form-check form-check-inline">
@@ -563,7 +563,7 @@
             <input class="form-check-input bg-warning" type="radio" name="interested" id="inlineRadio2" value="no" required>
             <label class="form-check-label text-white" for="inlineRadio2">No</label>
           </div>
-          <textarea class="mt-3 mb-3 rounded text-white" name="feedback" cols="62" rows="3" placeholder="Please give feedback..."></textarea>
+          <textarea class="mt-3 mb-3 rounded text-dark" name="feedback" cols="62" rows="3" placeholder="Please give feedback..."></textarea>
           <div class="row">
             <div class="col-md-9"></div>
             <div class="col-md-3">
@@ -587,7 +587,7 @@
 $(document).ready(function(){
     setTimeout(function(){
     $('#myModal').modal('show');
-    }, 3000); // Adjust the delay time in milliseconds (e.g., 3000 for 3 seconds)
+    }, 2000); // Adjust the delay time in milliseconds (e.g., 3000 for 3 seconds)
 });
 </script>
 
