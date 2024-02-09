@@ -595,17 +595,28 @@ def Fin_DHome(request):
         current_day=date.today() 
         diff = (data.End_date - current_day).days
         num = 20
-        print(diff)
-        if diff <= 20:
-            n=Fin_DNotification(Login_Id = data.Login_Id,Distributor_id = data,Title = "Payment Terms Alert",Discription = "Your Payment Terms End Soon")
-            n.save() 
+       
+        if not Fin_DNotification.objects.filter(Login_Id = data.Login_Id,Distributor_id = data,Title="Payment Terms Alert", status = 'New').exists() and diff <= 20:
+            n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
+            n.save()
 
-        noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id = data.id)
+        noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id = data.id).order_by('-id','-Noti_date')
         n = len(noti)
+        
+        # Calculate the date 20 days before the end date for payment term renew
+        reminder_date = data.End_date - timedelta(days=20)    
+        current_date = date.today()
+        alert_message = current_date >= reminder_date
+        
+        # Calculate the number of days between the reminder date and end date
+        days_left = (data.End_date - current_date).days
+        print(alert_message)   
         context = {
             'noti':noti,
             'n':n,
-            'data':data
+            'data':data,
+            'alert_message':alert_message,
+            'days_left':days_left,
         }
         return render(request,'Distributor/Fin_DHome.html',context)
     else:
@@ -773,7 +784,7 @@ def Fin_Dnotification(request):
         s_id = request.session['s_id']
         data = Fin_Distributors_Details.objects.get(Login_Id = s_id)
 
-        noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id = data.id)
+        noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id = data.id).order_by('-id','-Noti_date')
         n = len(noti)
         context = {
             'noti':noti,
@@ -1098,13 +1109,13 @@ def Fin_Com_Home(request):
             current_day=date.today() 
             diff = (com.End_date - current_day).days
             
-            # payment term and trial period alert notifications
+            # payment term and trial period alert notifications for notifation page
             if com.Payment_Term:
-                if not Fin_CNotification.objects.filter(Company_id=com, Title="Payment Terms Alert").exists() and diff <= 20:
+                if not Fin_CNotification.objects.filter(Company_id=com, Title="Payment Terms Alert",status = 'New').exists() and diff <= 20:
                     n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
                     n.save()
             else:
-                if not Fin_CNotification.objects.filter(Company_id=com, Title="Trial Period Alert").exists() and diff <= 10:
+                if not Fin_CNotification.objects.filter(Company_id=com, Title="Trial Period Alert",status = 'New').exists() and diff <= 10:
                     n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Trial Period Alert", Discription="Your Trial Period End Soon")
                     n.save()
 
