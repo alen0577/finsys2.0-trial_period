@@ -119,13 +119,28 @@
                         <div class="col">
                             
 
-                                    {% if data.Modules_List %}
-                                    <h4 class="h4"> <b>: {{data.Modules_List.company_id.Payment_Term.payment_terms_number}}
-                                        {{data.Modules_List.company_id.Payment_Term.payment_terms_value}}</b></h4>
-                                    {% else %}
-                                    <h4 class="h4 text-danger"> <b>: {{data1.Payment_Term.payment_terms_number}}
-                                        {{data1.Payment_Term.payment_terms_value}}</b></h4>
-                                    {% endif %}
+                            {% if data.Modules_List %}
+                            {% if data.Modules_List.company_id.Payment_Term %}
+                            <h4 class="h4"> <b>: {{data.Modules_List.company_id.Payment_Term.payment_terms_number}}
+                                {{data.Modules_List.company_id.Payment_Term.payment_terms_value}}</b>
+                            </h4>
+                            {% else %}
+                            <h4 class="h4"> <b>: Trial Period</b></h4>
+                            {% endif %}
+                            
+                            {% else %}
+                            {% if data1.Payment_Term %}
+                            <h4 class="h4 text-danger"> <b>: {{data1.Payment_Term.payment_terms_number}}
+                                {{data1.Payment_Term.payment_terms_value}}</b>
+                            </h4>
+                            {% else %}
+                            <h4 class="h4 text-danger"> <b>: Trial Period</b></h4>
+                            {% endif %}
+
+
+
+                            {% endif %}
+
                         </div>
                     </div>
                     {% if data.PaymentTerms_updation %}
@@ -297,7 +312,7 @@
 
                     </div>
                     <div class="col-md-3 p-3 mt-4">
-                        
+                        <h5><u>EWAY BILL</u></h5>
                         {% if allmodules.EWay_Bill != NULL %}
                         <h5><u>EWAY BILL</u></h5>
                         <b>-> </b> EWay Bill <br>
@@ -353,7 +368,7 @@
                     
 
 
-                            <!-- module update details with added and removed ones -->
+                <!-- module update details with added and removed ones -->
                 <h3 class="h3 p-5 pb-3 pt-3 text-center"><b><u>New Modules</u></b></h3>
                 <div class="row mt-3 mb-3">
                     <div class="col-md-6">
@@ -392,7 +407,7 @@
                                     <i class="fa fa-check-circle fa-sm text-light"></i>&nbsp; Offline Banking <br>
                                 {% endif %}
         
-                                {% if i == " UPI" %}
+                                {% if i == "UPI" %}
                                     <i class="fa fa-check-circle fa-sm text-light"></i>&nbsp; UPI <br>
                                 {% endif %}
         
@@ -618,7 +633,7 @@
 
                                 {% for i in deducted_modules %}
 
-                                {% if i == "Cash_in_Hand" %}
+                                {% if i == "Cash_in_hand" %}
                                     <i class="fa fa-times-circle fa-sm text-light"></i>&nbsp;Cash In Hand <br>
                                 {% endif %}
         

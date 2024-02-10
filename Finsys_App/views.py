@@ -597,7 +597,7 @@ def Fin_DHome(request):
         num = 20
        
         if not Fin_DNotification.objects.filter(Login_Id = data.Login_Id,Distributor_id = data,Title="Payment Terms Alert", status = 'New').exists() and diff <= 20:
-            n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
+            n = Fin_DNotification(Login_Id=data.Login_Id, Distributor_id = data, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
             n.save()
 
         noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id = data.id).order_by('-id','-Noti_date')
@@ -840,7 +840,7 @@ def  Fin_Dnoti_Overview(request,id):
                 elif new_values[field] < previous_values[field]:
                     deducted_modules[field] = previous_values[field] - new_values[field]
 
-        
+
             context = {
                 'noti':noti,
                 'n':n,
@@ -881,6 +881,9 @@ def  Fin_DModule_Updation_Accept(request,id):
     data.status = 'old'
     data.save()
 
+    # notification
+    notification=Fin_CNotification.objects.create(Login_Id=allmodules1.Login_Id, Company_id=allmodules1.company_id,Title='Modules Updated..!',Discription='Your module update request is approved')
+
     return redirect('Fin_Dnotification')
 
 def  Fin_DModule_Updation_Reject(request,id):
@@ -912,6 +915,10 @@ def  Fin_Dpayment_terms_Updation_Accept(request,id):
     upt = Fin_Payment_Terms_updation.objects.get(id = data.PaymentTerms_updation.id)
     upt.status = 'old'
     upt.save()
+
+    # notification
+    message=f'Your new plan is activated and ends on {end}'
+    notification=Fin_CNotification.objects.create(Login_Id=com.Login_Id, Company_id=com,Title='New Plan Activated..!',Discription=message)
 
     return redirect('Fin_Dnotification')
 
@@ -1161,12 +1168,23 @@ def Fin_Cnotification(request):
 
             noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com).order_by('-id','-Noti_date')
             n = len(noti)
+
+            title=['Trial Period Alert','Payment Terms Alert']
+            
+            payment_term_notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title__in=title).order_by('-id','-Noti_date')
+            module_accept_notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title='Modules Updated..!').order_by('-id','-Noti_date')
+            pterm_accept_notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title='New Plan Activated..!').order_by('-id','-Noti_date')
+
+           
             context = {
                 'allmodules':allmodules,
                 'com':com,
                 'data':data,
                 'noti':noti,
-                'n':n
+                'n':n,
+                'module_notification': module_accept_notification,
+                'payment_term_notification':payment_term_notification,
+                'pterm_accept_notification':pterm_accept_notification,
             }
             return render(request,'company/Fin_Cnotification.html',context)  
         else:
@@ -1309,7 +1327,7 @@ def Fin_Add_Modules(request,id):
         # Bank_Reconciliation = request.POST.get('c6')
         UPI = request.POST.get('c7')
         Bank_Holders = request.POST.get('c8')
-        Cheque = request.POST.get('c9',0)
+        Cheque = request.POST.get('c9')
         Loan_Account = request.POST.get('c10')
 
         #  ------SALES MODULE -------
@@ -1501,11 +1519,16 @@ def Fin_Edit_Modules(request):
 def Fin_Edit_Modules_Action(request): 
     if 's_id' in request.session:
         s_id = request.session['s_id']
+
+        data = Fin_Login_Details.objects.get(id = s_id)
+        
+        com = Fin_Company_Details.objects.get(Login_Id = s_id)
+
+        if Fin_Modules_List.objects.filter(company_id=com, status = 'pending').exists():
+            return redirect('Fin_Company_Profile')
         
         if request.method == 'POST':
-            data = Fin_Login_Details.objects.get(id = s_id)
-        
-            com = Fin_Company_Details.objects.get(Login_Id = s_id)
+            
 
             # -----ITEMS----
 
