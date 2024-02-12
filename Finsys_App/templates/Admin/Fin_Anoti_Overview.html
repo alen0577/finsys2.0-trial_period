@@ -135,14 +135,29 @@
                         </div>
                         <div class="col">
                             
+                            {% if data.Modules_List %}
+                            {% if data.Modules_List.company_id.Payment_Term %}
+                            <h4 class="h4"> <b>: {{data.Modules_List.company_id.Payment_Term.payment_terms_number}}
+                                {{data.Modules_List.company_id.Payment_Term.payment_terms_value}}</b>
+                            </h4>
+                            {% else %}
+                            <h4 class="h4"> <b>: Trial Period</b></h4>
+                            {% endif %}
+                            
+                            {% else %}
+                            {% if data1.Payment_Term %}
+                            <h4 class="h4 text-danger"> <b>: {{data1.Payment_Term.payment_terms_number}}
+                                {{data1.Payment_Term.payment_terms_value}}</b>
+                            </h4>
+                            {% else %}
+                            <h4 class="h4 text-danger"> <b>: Trial Period</b></h4>
+                            {% endif %}
 
-                                    {% if data.Modules_List %}
-                                    <h4 class="h4"> <b>: {{data.Modules_List.company_id.Payment_Term.payment_terms_number}}
-                                        {{data.Modules_List.company_id.Payment_Term.payment_terms_value}}</b></h4>
-                                    {% else %}
-                                    <h4 class="h4 text-danger"> <b>: {{data1.Payment_Term.payment_terms_number}}
-                                        {{data1.Payment_Term.payment_terms_value}}</b></h4>
-                                    {% endif %}
+
+
+                            {% endif %}
+
+                            
                         </div>
                     </div>
                     {% if data.PaymentTerms_updation %}
@@ -154,8 +169,9 @@
                             
 
                                    
-                                    <h4 class="h4 text-success"> <b>: {{data.PaymentTerms_updation.Payment_Term.payment_terms_number}}
-                                        {{data.PaymentTerms_updation.Payment_Term.payment_terms_value}}</b></h4>
+                            <h4 class="h4 text-success"> <b>: {{data.PaymentTerms_updation.Payment_Term.payment_terms_number}}
+                                {{data.PaymentTerms_updation.Payment_Term.payment_terms_value}}</b>
+                            </h4>
                                     
                                     
                         </div>
