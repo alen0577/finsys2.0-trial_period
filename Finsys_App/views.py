@@ -399,6 +399,13 @@ def  Fin_payment_terms_Updation_Accept(request,id):
     data = Fin_ANotification.objects.get(id=id)
     com = Fin_Company_Details.objects.get(Login_Id = data.Login_Id)
     terms=Fin_Payment_Terms.objects.get(id=data.PaymentTerms_updation.Payment_Term.id)
+
+    title=['Trial Period Alert','Payment Terms Alert']
+    cnoti = Fin_CNotification.objects.filter(Company_id = com, Title__in=title)
+
+    for c in cnoti:
+        c.status = 'old'
+        c.save()  
     
     start=com.End_date + timedelta(days=1)
     com.Start_Date = start
@@ -416,10 +423,7 @@ def  Fin_payment_terms_Updation_Accept(request,id):
     upt.status = 'old'
     upt.save()
 
-    cnoti = Fin_CNotification.objects.filter(Company_id = com)
-    # for c in cnoti:
-    #     c.status = 'old'
-    #     c.save()   
+    
 
     # notification
     message=f'Your new plan is activated and ends on {end}'
@@ -910,6 +914,13 @@ def  Fin_Dpayment_terms_Updation_Accept(request,id):
     data = Fin_DNotification.objects.get(id=id)
     com = Fin_Company_Details.objects.get(Login_Id = data.Login_Id)
     terms=Fin_Payment_Terms.objects.get(id=data.PaymentTerms_updation.Payment_Term.id)
+
+    title=['Trial Period Alert','Payment Terms Alert']
+    cnoti = Fin_CNotification.objects.filter(Company_id = com, Title__in=title)
+
+    for c in cnoti:
+        c.status = 'old'
+        c.save()  
     
     start=com.End_date + timedelta(days=1)
     com.Start_Date = start
@@ -1124,6 +1135,14 @@ def Fin_Com_Home(request):
             com = Fin_Company_Details.objects.get(Login_Id = s_id)
             allmodules = Fin_Modules_List.objects.get(Login_Id = s_id,status = 'New')
 
+            payment_request=Fin_Payment_Terms_updation.objects.filter(Login_Id=com.Login_Id,status='New').exists()
+
+
+            title2=['Modules Updated..!','New Plan Activated..!']
+            today_date = datetime.now().date()
+            notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title__in=title2,Noti_date__lt=today_date).order_by('-id','-Noti_date')
+            notification.update(status='old')
+
             current_day=date.today() 
             diff = (com.End_date - current_day).days
             
@@ -1159,6 +1178,7 @@ def Fin_Com_Home(request):
                 'n':n,
                 'alert_message':alert_message,
                 'days_left':days_left,
+                'payment_request':payment_request,
                 }
 
             return render(request,'company/Fin_Com_Home.html',context)
@@ -1177,17 +1197,21 @@ def Fin_Cnotification(request):
             com = Fin_Company_Details.objects.get(Login_Id = s_id)
             allmodules = Fin_Modules_List.objects.get(Login_Id = s_id,status = 'New')
 
-            noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com).order_by('-id','-Noti_date')
-            n = len(noti)
 
             title=['Trial Period Alert','Payment Terms Alert']
             title2=['Modules Updated..!','New Plan Activated..!']
-            
+            today_date = datetime.now().date()
+            notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title__in=title2,Noti_date__lt=today_date).order_by('-id','-Noti_date')
+            notification.update(status='old')
+
+            noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com).order_by('-id','-Noti_date')
+            n = len(noti)
+
             payment_term_notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title__in=title).order_by('-id','-Noti_date')
-            other_notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title__in=title2).order_by('-id','-Noti_date')
+            other_notification=Fin_CNotification.objects.filter(status = 'New',Company_id = com,Title__in=title2,Noti_date__date=today_date).order_by('-id','-Noti_date')
            
 
-           
+            
             context = {
                 'allmodules':allmodules,
                 'com':com,
@@ -1196,6 +1220,7 @@ def Fin_Cnotification(request):
                 'n':n,
                 'payment_term_notification':payment_term_notification,
                 'other_notification':other_notification,
+                
             }
             return render(request,'company/Fin_Cnotification.html',context)  
         else:

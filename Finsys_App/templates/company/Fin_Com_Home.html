@@ -363,94 +363,87 @@
 
 <script>
 //invoice
-        const ctx1 = document.getElementById('pie-chart5').getContext('2d');
-        const myChart1 = new Chart(ctx1, {
-            type:'bar',
-            data: {
-               labels:  ['Unpaid', 'Paid'],
-                colors: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
+    const ctx1 = document.getElementById('pie-chart5').getContext('2d');
+    const myChart1 = new Chart(ctx1, {
+        type:'bar',
+        data: {
+            labels:  ['Unpaid', 'Paid'],
+            colors: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
 
 
-                datasets: [{
+            datasets: [{
 
 
 
-                    data: [{{up}},{{p}}],
-                    backgroundColor: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
-                    borderColor:["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
+                data: [{{up}},{{p}}],
+                backgroundColor: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
+                borderColor:["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
 
-                }]
+            }]
+        },
+        options: {
+            dataLabels: {
+                font:{
+                    size:10,
+                    color: ['#000000'],
+                }
             },
-            options: {
-                dataLabels: {
-                  font:{
-                      size:10,
-                      color: ['#000000'],
-                  }
-                },
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-        console.log(labels,data)
-    </script>
+        }
+    });
+    console.log(labels,data)
+</script>
 
 <script>
 //sales
-        const ctx12 = document.getElementById('pie-chart12').getContext('2d');
-        const myChart12 = new Chart(ctx12, {
-            type:'line',
-            data: {
-               labels:  {{ label_3|safe }},
-                colors: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
+    const ctx12 = document.getElementById('pie-chart12').getContext('2d');
+    const myChart12 = new Chart(ctx12, {
+        type:'line',
+        data: {
+            labels:  {{ label_3|safe }},
+            colors: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
 
 
-                datasets: [{
+            datasets: [{
 
 
 
-                    data: {{ data_3|safe }},
-                    backgroundColor: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
-                    borderColor:["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
+                data: {{ data_3|safe }},
+                backgroundColor: ["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
+                borderColor:["rgba(255, 255, 255, 0.52)", "rgba(255, 255, 255, 0.22)"],
 
-                }]
+            }]
+        },
+        options: {
+            dataLabels: {
+                font:{
+                    size:10,
+                    color: ['#000000'],
+                }
             },
-            options: {
-                dataLabels: {
-                  font:{
-                      size:10,
-                      color: ['#000000'],
-                  }
-                },
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-        console.log(labels,data)
-    </script>
+        }
+    });
+    console.log(labels,data)
+</script>
 
 
-
-
-<!-- Include your modal HTML structure here (hidden by default) -->
-<!-- {% if payment_request == False %} -->
-<!-- {% if alert_message %} -->
-<!-- {% endif %} -->
-
-<!-- {% endif %} -->
 
 
 <!-- Modal -->
+{% if payment_request == False %}
 {% if alert_message %}
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -517,6 +510,8 @@
     </div>
 </div>
 {% endif %}
+{% endif %}
+
 
   
 
