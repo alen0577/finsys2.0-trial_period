@@ -364,7 +364,7 @@
                 </div>      
                 <hr>
                 
-                {% endif %}
+                
  
                     
 
@@ -837,6 +837,8 @@
                 
                 </div> 
                 <hr>
+                {% endif %}
+                
 
                 <div class="row pb-5 mt-5">
                     <div class="col-md-3"></div>
@@ -851,7 +853,7 @@
                         {% if data.Modules_List %}
                         <a href="{% url 'Fin_DModule_Updation_Reject' data.id %}" class="btn btn-danger"  style="width: 100%;">REJECT</a>
                         {% else %}
-                        <a href="{% url 'Fin_ADpayment_terms_Updation_Reject' data.id %}" class="btn btn-danger"  style="width: 100%;">REJECT</a>
+                        <a href="{% url 'Fin_Dpayment_terms_Updation_Reject' data.id %}" class="btn btn-danger"  style="width: 100%;">REJECT</a>
                         {% endif %}
                     </div>
                     <div class="col-md-3"></div>

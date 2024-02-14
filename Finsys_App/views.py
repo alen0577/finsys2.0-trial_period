@@ -280,7 +280,7 @@ def Fin_Admin_clients_overview(request,id):
    return render(request,"Admin/Fin_Admin_clients_overview.html",{'data':data,'allmodules':allmodules,'noti':noti,'n':n})   
 
 def Fin_Anotification(request):
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     context = {
         'noti':noti,
@@ -463,10 +463,8 @@ def  Fin_ADpayment_terms_Updation_Accept(request,id):
     upt.status = 'old'
     upt.save()
 
-    cnoti = Fin_DNotification.objects.filter(Distributor_id = com)
-    # for c in cnoti:
-    #     c.status = 'old'
-    #     c.save()  
+    dnoti = Fin_DNotification.objects.filter(Distributor_id = com,Title='Payment Terms Alert')
+    dnoti.update(status='old')
 
     # notification
     message=f'Your new plan is activated and ends on {end}'
@@ -610,11 +608,21 @@ def Fin_DHome(request):
         current_day=date.today() 
         diff = (data.End_date - current_day).days
         num = 20
-       
+
+        payment_request=Fin_Payment_Terms_updation.objects.filter(Login_Id=data.Login_Id,status='New').exists()
+
+
+        title2=['Modules Updated..!','New Plan Activated..!']
+        today_date = datetime.now().date()
+        notification=Fin_DNotification.objects.filter(status = 'New',Distributor_id = data,Title__in=title2,Noti_date__lt=today_date)
+        notification.update(status='old')
+
+        dis_name=data.Login_Id.First_name + data.Login_Id.Last_name
         if not Fin_DNotification.objects.filter(Login_Id = data.Login_Id,Distributor_id = data,Title="Payment Terms Alert", status = 'New').exists() and diff <= 20:
             n = Fin_DNotification(Login_Id=data.Login_Id, Distributor_id = data, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
             n.save()
-
+            d = Fin_ANotification(Login_Id=data.Login_Id, Title="Payment Terms Alert", Discription=f"Current  payment terms of {dis_name} is expiring")
+            d.save()
         noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id = data.id).order_by('-id','-Noti_date')
         n = len(noti)
         
@@ -625,13 +633,14 @@ def Fin_DHome(request):
         
         # Calculate the number of days between the reminder date and end date
         days_left = (data.End_date - current_date).days
-        print(alert_message)   
+          
         context = {
             'noti':noti,
             'n':n,
             'data':data,
             'alert_message':alert_message,
             'days_left':days_left,
+            'payment_request':payment_request,
         }
         return render(request,'Distributor/Fin_DHome.html',context)
     else:
@@ -788,9 +797,13 @@ def Fin_DProfile(request):
         data = Fin_Distributors_Details.objects.get(Login_Id = s_id)
         data1 = Fin_Company_Details.objects.filter(Registration_Type = "distributor",Distributor_approval_status = "Accept",Distributor_id = data.id)
         terms = Fin_Payment_Terms.objects.all()
+
+        payment_request=Fin_Payment_Terms_updation.objects.filter(Login_Id=data.Login_Id,status='New').exists()
+
+
         noti = Fin_DNotification.objects.filter(status = 'New',Distributor_id = data.id)
         n = len(noti)
-        return render(request,'Distributor/Fin_DProfile.html',{'data':data,'data1':data1,'terms':terms,'noti':noti,'n':n})
+        return render(request,'Distributor/Fin_DProfile.html',{'data':data,'data1':data1,'terms':terms,'noti':noti,'n':n,'payment_request':payment_request})
     else:
        return redirect('/')  
     
@@ -963,13 +976,16 @@ def Fin_DChange_payment_terms(request):
             com = Fin_Distributors_Details.objects.get(Login_Id = s_id)
             pt = request.POST['payment_term']
 
+            if Fin_Payment_Terms_updation.objects.filter(Login_Id=com.Login_Id,status='New').exists():
+                return redirect('Fin_DProfile')
+
             pay = Fin_Payment_Terms.objects.get(id=pt)
 
             data1 = Fin_Payment_Terms_updation(Login_Id = data,Payment_Term = pay)
             data1.save()
 
             
-            noti = Fin_ANotification(Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Login_Id.First_name + " is change Payment Terms")
+            noti = Fin_ANotification(Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Login_Id.First_name + com.Login_Id.Last_name + " wants to subscribe a new plan")
             noti.save()
               
 
@@ -1147,14 +1163,28 @@ def Fin_Com_Home(request):
             diff = (com.End_date - current_day).days
             
             # payment term and trial period alert notifications for notifation page
+            cmp_name=com.Company_name
             if com.Payment_Term:
                 if not Fin_CNotification.objects.filter(Company_id=com, Title="Payment Terms Alert",status = 'New').exists() and diff <= 20:
+                    
                     n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
                     n.save()
+                    if com.Registration_Type == 'self':
+                        d = Fin_ANotification(Login_Id=data, Title="Payment Terms Alert", Discription=f"Current  payment terms of {cmp_name} is expiring")
+                    else:
+                        d = Fin_DNotification(Login_Id=data, Distributor_id=com.Distributor_id, Title="Payment Terms Alert", Discription=f"Current  payment terms of {cmp_name} is expiring")
+
+                    d.save()
             else:
                 if not Fin_CNotification.objects.filter(Company_id=com, Title="Trial Period Alert",status = 'New').exists() and diff <= 10:
                     n = Fin_CNotification(Login_Id=data, Company_id=com, Title="Trial Period Alert", Discription="Your Trial Period End Soon")
                     n.save()
+                    if com.Registration_Type == 'self':
+                        d = Fin_ANotification(Login_Id=data, Title="Payment Terms Alert", Discription=f"Current  payment terms of {cmp_name} is expiring")
+                    else:
+                        d = Fin_DNotification(Login_Id=data, Distributor_id=com.Distributor_id, Title="Payment Terms Alert", Discription=f"Current  payment terms of {cmp_name} is expiring")
+
+                    d.save()
 
             noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com).order_by('-id','-Noti_date')
             n = len(noti)
@@ -1637,10 +1667,10 @@ def Fin_Edit_Modules_Action(request):
             data1=Fin_Modules_List.objects.filter(company_id = com).update(update_action=1)
 
             if com.Registration_Type == 'self':
-                noti = Fin_ANotification(Login_Id = data,Modules_List = modules,Title = "Module Updation",Discription = com.Company_name + " is change Modules")
+                noti = Fin_ANotification(Login_Id = data,Modules_List = modules,Title = "Module Updation",Discription = com.Company_name + " wants to update current Modules")
                 noti.save()
             else:
-                noti = Fin_DNotification(Distributor_id = com.Distributor_id,Login_Id = data,Modules_List = modules,Title = "Module Updation",Discription = com.Company_name + " is change Modules")
+                noti = Fin_DNotification(Distributor_id = com.Distributor_id,Login_Id = data,Modules_List = modules,Title = "Module Updation",Discription = com.Company_name + " wants to update current Modules")
                 noti.save()   
 
             print("edit modules")
@@ -1660,9 +1690,12 @@ def Fin_Company_Profile(request):
             com = Fin_Company_Details.objects.get(Login_Id = s_id)
             allmodules = Fin_Modules_List.objects.get(Login_Id = s_id,status = 'New')
             terms = Fin_Payment_Terms.objects.all()
+            
+            payment_request=Fin_Payment_Terms_updation.objects.filter(Login_Id=com.Login_Id,status='New').exists()
+
             noti = Fin_CNotification.objects.filter(status = 'New',Company_id = com)
             n = len(noti)
-            return render(request,'company/Fin_Company_Profile.html',{'allmodules':allmodules,'com':com,'data':data,'terms':terms,'noti':noti,'n':n})
+            return render(request,'company/Fin_Company_Profile.html',{'allmodules':allmodules,'com':com,'data':data,'terms':terms,'noti':noti,'n':n,'payment_request':payment_request})
         else:
             com = Fin_Staff_Details.objects.get(Login_Id = s_id)
             allmodules = Fin_Modules_List.objects.get(company_id = com.company_id,status = 'New')
@@ -1725,16 +1758,20 @@ def Fin_Change_payment_terms(request):
             com = Fin_Company_Details.objects.get(Login_Id = s_id)
             pt = request.POST['payment_term']
 
+            if Fin_Payment_Terms_updation.objects.filter(Login_Id=com.Login_Id,status='New').exists():
+                return redirect('Fin_Company_Profile')
+
+
             pay = Fin_Payment_Terms.objects.get(id=pt)
 
             data1 = Fin_Payment_Terms_updation(Login_Id = data,Payment_Term = pay)
             data1.save()
 
             if com.Registration_Type == 'self':
-                noti = Fin_ANotification(Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Company_name + " is change Payment Terms")
+                noti = Fin_ANotification(Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Company_name + " wants to subscribe a new plan")
                 noti.save()
             else:
-                noti = Fin_DNotification(Distributor_id = com.Distributor_id,Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Company_name + " is change Payment Terms")
+                noti = Fin_DNotification(Distributor_id = com.Distributor_id,Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Company_name + " wants to subscribe a new plan")
                 noti.save()    
 
 

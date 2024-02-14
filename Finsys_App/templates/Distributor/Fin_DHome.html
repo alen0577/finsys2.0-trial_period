@@ -51,6 +51,7 @@
 
 
 <!-- Modal -->
+{% if not payment_request %}
 {% if alert_message %}
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -87,6 +88,7 @@
       </div>
     </div>
 </div>
+{% endif %}
 {% endif %}
 
 <script>
