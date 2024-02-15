@@ -253,16 +253,16 @@ urlpatterns = [
     path('Clients_under_Distributors',views.Fin_Clients_under_distributors,name='Fin_Clients_under_distributors'),
     path('getClients_Under_Distributor',views.get_clients_under_distributor,name='get_clients_under_distributor'),
     path('Distributor/client/details/<int:pk>',views.distributor_client_profile_details,name='distributor_client_profile_details'),
-    path('ADpayment_terms_Updation_Accept/<id>',views.Fin_ADpayment_terms_Updation_Accept,name='Fin_ADpayment_terms_Updation_Accept'),
-    path('ADpayment_terms_Updation_Reject/<id>',views.Fin_ADpayment_terms_Updation_Reject,name='Fin_ADpayment_terms_Updation_Reject'),
-
-    # ---------------Distributor updates----------------
-    path('DClient/Trial_Period/Details',views.Fin_trial_periodclients,name='Fin_trial_periodclients'),
     path('Admin/Trial_Period/Section',views.Fin_Admin_trial_period_section,name='Fin_Admin_trial_period_section'),
     path('Admin/Trial_Period/Clients',views.Fin_Admin_trial_period_clients,name='Fin_Admin_trial_period_clients'),
     path('Admin/Trial_Period/Distributor-Clients',views.Fin_Admin_trial_period_distributor_clients,name='Fin_Admin_trial_period_distributor_clients'),
-     path('Dpayment_terms_Updation_Accept/<id>',views.Fin_Dpayment_terms_Updation_Accept,name='Fin_Dpayment_terms_Updation_Accept'),
-    path('Dpayment_terms_Updation_Reject/<id>',views.Fin_Dpayment_terms_Updation_Reject,name='Fin_Dpayment_terms_Updation_Reject'),
+    path('ADpayment_terms_Updation_Accept/<int:id>',views.Fin_ADpayment_terms_Updation_Accept,name='Fin_ADpayment_terms_Updation_Accept'),
+    path('ADpayment_terms_Updation_Reject/<int:id>',views.Fin_ADpayment_terms_Updation_Reject,name='Fin_ADpayment_terms_Updation_Reject'),
+
+    # ---------------Distributor updates----------------
+    path('DClient/Trial_Period/Details',views.Fin_trial_periodclients,name='Fin_trial_periodclients'),
+    path('Dpayment_terms_Updation_Accept/<int:id>',views.Fin_Dpayment_terms_Updation_Accept,name='Fin_Dpayment_terms_Updation_Accept'),
+    path('Dpayment_terms_Updation_Reject/<int:id>',views.Fin_Dpayment_terms_Updation_Reject,name='Fin_Dpayment_terms_Updation_Reject'),
  
     # ---------------Company updates----------------
     path('Company/Trial/Review',views.Fin_company_trial_feedback,name='Fin_company_trial_feedback'),

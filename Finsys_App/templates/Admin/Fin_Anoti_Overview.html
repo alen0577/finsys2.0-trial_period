@@ -34,7 +34,13 @@
                 <div class="card-body">
                     <div class="card-title">
 
-                        <h2 class="card-title mb-9 fw-semibold text-center"><b>COMPANY DETAILS</b></h2>
+                        <h2 class="card-title mb-9 fw-semibold text-center">
+                            {% if data.Login_Id.User_Type == "Company" %}
+                            <b>COMPANY DETAILS</b>
+                            {% else %}
+                            <b>DISTRIBUTOR DETAILS</b>
+                            {% endif %}  
+                        </h2>
                         <hr>
                     </div>
                     <center>

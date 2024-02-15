@@ -143,7 +143,7 @@ def logout(request):
 
 
 def Fin_Adminhome(request):
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     context = {
         'noti':noti,
@@ -400,12 +400,13 @@ def  Fin_payment_terms_Updation_Accept(request,id):
     com = Fin_Company_Details.objects.get(Login_Id = data.Login_Id)
     terms=Fin_Payment_Terms.objects.get(id=data.PaymentTerms_updation.Payment_Term.id)
 
-    title=['Trial Period Alert','Payment Terms Alert']
+    title=['Trial Period Alert','Payment Terms Alert',]
     cnoti = Fin_CNotification.objects.filter(Company_id = com, Title__in=title)
+    cnoti.update(status='old')
 
-    for c in cnoti:
-        c.status = 'old'
-        c.save()  
+    anoti= Fin_ANotification.objects.filter(Login_Id = com.Login_Id, Title__in=title) 
+    anoti.update(status='old')
+    
     
     start=com.End_date + timedelta(days=1)
     com.Start_Date = start
@@ -463,8 +464,12 @@ def  Fin_ADpayment_terms_Updation_Accept(request,id):
     upt.status = 'old'
     upt.save()
 
-    dnoti = Fin_DNotification.objects.filter(Distributor_id = com,Title='Payment Terms Alert')
+    title=['Trial Period Alert','Payment Terms Alert',]
+    dnoti = Fin_DNotification.objects.filter(Distributor_id = com,Title__in=title)
     dnoti.update(status='old')
+
+    anoti= Fin_ANotification.objects.filter(Login_Id = com.Login_Id, Title__in=title) 
+    anoti.update(status='old')
 
     # notification
     message=f'Your new plan is activated and ends on {end}'
@@ -612,12 +617,12 @@ def Fin_DHome(request):
         payment_request=Fin_Payment_Terms_updation.objects.filter(Login_Id=data.Login_Id,status='New').exists()
 
 
-        title2=['Modules Updated..!','New Plan Activated..!']
+        title2=['Modules Updated..!','New Plan Activated..!','Change Payment Terms']
         today_date = datetime.now().date()
         notification=Fin_DNotification.objects.filter(status = 'New',Distributor_id = data,Title__in=title2,Noti_date__lt=today_date)
         notification.update(status='old')
 
-        dis_name=data.Login_Id.First_name + data.Login_Id.Last_name
+        dis_name=data.Login_Id.First_name +"  "+ data.Login_Id.Last_name
         if not Fin_DNotification.objects.filter(Login_Id = data.Login_Id,Distributor_id = data,Title="Payment Terms Alert", status = 'New').exists() and diff <= 20:
             n = Fin_DNotification(Login_Id=data.Login_Id, Distributor_id = data, Title="Payment Terms Alert", Discription="Your Payment Terms End Soon")
             n.save()
@@ -930,7 +935,10 @@ def  Fin_Dpayment_terms_Updation_Accept(request,id):
 
     title=['Trial Period Alert','Payment Terms Alert']
     cnoti = Fin_CNotification.objects.filter(Company_id = com, Title__in=title)
+    dnoti = Fin_DNotification.objects.filter(Distributor_id = com.Distributor_id,Login_Id=com.Login_Id,Title__in=title)
+    dnoti.update(status='old')
 
+    
     for c in cnoti:
         c.status = 'old'
         c.save()  
@@ -985,7 +993,7 @@ def Fin_DChange_payment_terms(request):
             data1.save()
 
             
-            noti = Fin_ANotification(Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Login_Id.First_name + com.Login_Id.Last_name + " wants to subscribe a new plan")
+            noti = Fin_ANotification(Login_Id = data,PaymentTerms_updation = data1,Title = "Change Payment Terms",Discription = com.Login_Id.First_name + ' ' + com.Login_Id.Last_name + " wants to subscribe a new plan")
             noti.save()
               
 
@@ -1578,10 +1586,13 @@ def Fin_Edit_Modules(request):
         
         com = Fin_Company_Details.objects.get(Login_Id = s_id)
         allmodules = Fin_Modules_List.objects.get(Login_Id = s_id,status = 'New')
-        return render(request,'company/Fin_Edit_Modules.html',{'allmodules':allmodules,'com':com})
+        module_request=Fin_Modules_List.objects.filter(company_id=com, status = 'pending')
+           
+        return render(request,'company/Fin_Edit_Modules.html',{'allmodules':allmodules,'com':com,'module_request': module_request,})
        
     else:
        return redirect('/') 
+
 def Fin_Edit_Modules_Action(request): 
     if 's_id' in request.session:
         s_id = request.session['s_id']
@@ -1590,9 +1601,6 @@ def Fin_Edit_Modules_Action(request):
         
         com = Fin_Company_Details.objects.get(Login_Id = s_id)
 
-        if Fin_Modules_List.objects.filter(company_id=com, status = 'pending').exists():
-            return redirect('Fin_Company_Profile')
-        
         if request.method == 'POST':
             
 
@@ -6393,14 +6401,14 @@ def Fin_company_trial_feedback(request):
             interested = request.POST.get('interested')
             feedback=request.POST.get('feedback') 
             
-            trial_instance.interested_in_buying=1 if interested =='yes' else 2
+            trial_instance.interested_in_buying=1 if interested == 'yes' else 2
             trial_instance.feedback=feedback
             trial_instance.save()
 
             if interested =='yes':
                 return redirect('Fin_Company_Profile')
             else:
-                return redirect('Fin_Com_Home')
+                return redirect('Fin_Company_Profile')
         else:
             return redirect('Fin_Com_Home')
     else:

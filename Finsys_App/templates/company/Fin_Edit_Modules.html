@@ -277,8 +277,13 @@
                 </div>
                 <hr>
 
+                {% if not  module_request %}
                 <center><input type="submit" class="next action-button" value="Submit" style="width: 20%;" /></center>
-           
+                {% else %}
+                <center><input type="submit" disabled class="next action-button" value="Submit" style="width: 20%;" /></center>
+                <p class="text-center text-danger">You have a pending request, please wait for approval.</p>
+                {% endif %}
+
             <!-- <center><input type="submit" class="btn btn-danger p-2 mt-5 mb-3" style="width: 30%;font-weight: bold;border-radius: 10px;"></center> -->
             
         </form>    

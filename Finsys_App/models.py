@@ -663,7 +663,7 @@ class TrialPeriod(models.Model):
     company = models.OneToOneField(Fin_Company_Details, on_delete=models.CASCADE)
     start_date = models.DateField(auto_now_add=True)
     end_date = models.DateField()
-    interested_in_buying = models.BooleanField(default=0)
+    interested_in_buying = models.IntegerField(default=0)
     feedback = models.TextField(blank=True, null=True)
 
     def is_active(self):
