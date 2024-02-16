@@ -63,7 +63,7 @@ def Fin_login(request):
                             print(s_id)
                             
                             current_day=date.today() 
-                            if current_day == did.End_date:
+                            if current_day > did.End_date:
                                 print("wrong")
                                    
                                 return redirect('Fin_Wrong')
@@ -88,7 +88,7 @@ def Fin_login(request):
                             
 
                             current_day=date.today() 
-                            if current_day >= com.End_date:
+                            if current_day > com.End_date:
                                 print("wrong")
                                    
                                 return redirect('Fin_Wrong')
@@ -111,7 +111,7 @@ def Fin_login(request):
                             
 
                             current_day=date.today() 
-                            if current_day >= com.company_id.End_date:
+                            if current_day > com.company_id.End_date:
                                 print("wrong")
                                 messages.info(request, 'Your Account Temporary blocked')
                                 return redirect('Fin_StaffReg') 
@@ -153,7 +153,7 @@ def Fin_Adminhome(request):
 
 def Fin_PaymentTerm(request):
     terms = Fin_Payment_Terms.objects.all()
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     return render(request,'Admin/Fin_Payment_Terms.html',{'terms':terms,'noti':noti,'n':n})
 
@@ -179,20 +179,20 @@ def Fin_add_payment_terms(request):
   return redirect('Fin_PaymentTerm')
 
 def Fin_ADistributor(request):
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     return render(request,"Admin/Fin_ADistributor.html",{'noti':noti,'n':n})
 
 def Fin_Distributor_Request(request):
    data = Fin_Distributors_Details.objects.filter(Admin_approval_status = "NULL")
    print(data)
-   noti = Fin_ANotification.objects.filter(status = 'New')
+   noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
    n = len(noti)
    return render(request,"Admin/Fin_Distributor_Request.html",{'data':data,'noti':noti,'n':n})
 
 def Fin_Distributor_Req_overview(request,id):
     data = Fin_Distributors_Details.objects.get(id=id)
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     return render(request,"Admin/Fin_Distributor_Req_overview.html",{'data':data,'noti':noti,'n':n})
 
@@ -217,18 +217,18 @@ def Fin_Distributor_delete(request,id):
 def Fin_All_distributors(request):
    data = Fin_Distributors_Details.objects.filter(Admin_approval_status = "Accept")
    print(data)
-   noti = Fin_ANotification.objects.filter(status = 'New')
+   noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
    n = len(noti)
    return render(request,"Admin/Fin_All_distributors.html",{'data':data,'noti':noti,'n':n})
 
 def Fin_All_Distributor_Overview(request,id):
    data = Fin_Distributors_Details.objects.get(id=id)
-   noti = Fin_ANotification.objects.filter(status = 'New')
+   noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
    n = len(noti)
    return render(request,"Admin/Fin_All_Distributor_Overview.html",{'data':data,'noti':noti,'n':n})  
 
 def Fin_AClients(request):
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     return render(request,"Admin/Fin_AClients.html",{'noti':noti,'n':n})
 
@@ -236,14 +236,14 @@ def Fin_AClients(request):
 def Fin_AClients_Request(request):
     data = Fin_Company_Details.objects.filter(Registration_Type = "self", Admin_approval_status = "NULL")
     print(data)
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     return render(request,"Admin/Fin_AClients_Request.html",{'data':data,'noti':noti,'n':n})
 
 def Fin_AClients_Request_OverView(request,id):
     data = Fin_Company_Details.objects.get(id=id)
     allmodules = Fin_Modules_List.objects.get(company_id = id,status = "New")
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     return render(request,'Admin/Fin_AClients_Request_OverView.html',{'data':data,'allmodules':allmodules,'noti':noti,'n':n})
 
@@ -268,14 +268,14 @@ def Fin_Client_delete(request,id):
 def Fin_Admin_clients(request):
    data = Fin_Company_Details.objects.filter(Admin_approval_status = "Accept")
    print(data)
-   noti = Fin_ANotification.objects.filter(status = 'New')
+   noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
    n = len(noti)
    return render(request,"Admin/Fin_Admin_clients.html",{'data':data,'noti':noti,'n':n})
 
 def Fin_Admin_clients_overview(request,id):
    data = Fin_Company_Details.objects.get(id=id)
    allmodules = Fin_Modules_List.objects.get(company_id = id,status = "New")
-   noti = Fin_ANotification.objects.filter(status = 'New')
+   noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
    n = len(noti)
    return render(request,"Admin/Fin_Admin_clients_overview.html",{'data':data,'allmodules':allmodules,'noti':noti,'n':n})   
 
@@ -497,7 +497,7 @@ def Fin_remove_payment_terms(request,pk):
 
 def Fin_Clients_under_distributors(request):
    distributors=Fin_Distributors_Details.objects.filter(Admin_approval_status="Accept")
-   noti = Fin_ANotification.objects.filter(status = 'New')
+   noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
    n = len(noti)
 
    context={
@@ -549,7 +549,7 @@ def get_clients_under_distributor(request):
 def distributor_client_profile_details(request,pk):
     data = Fin_Company_Details.objects.get(id=pk)
     allmodules = Fin_Modules_List.objects.get(company_id = pk,status = "New")
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
  
 
@@ -562,7 +562,7 @@ def distributor_client_profile_details(request,pk):
 # ----Trial period section------
 
 def Fin_Admin_trial_period_section(request):
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     context = {
         'noti':noti,
@@ -572,7 +572,7 @@ def Fin_Admin_trial_period_section(request):
 
 
 def Fin_Admin_trial_period_clients(request):
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     clients=TrialPeriod.objects.filter(company__Registration_Type='self',company__Admin_approval_status='Accept').order_by('-id')
     context={
@@ -584,7 +584,7 @@ def Fin_Admin_trial_period_clients(request):
 
 
 def Fin_Admin_trial_period_distributor_clients(request):
-    noti = Fin_ANotification.objects.filter(status = 'New')
+    noti = Fin_ANotification.objects.filter(status = 'New').order_by('-id','-Noti_date')
     n = len(noti)
     distributors=Fin_Distributors_Details.objects.filter(Admin_approval_status='Accept')
     clients=TrialPeriod.objects.filter(company__Registration_Type='distributor',company__Distributor_approval_status='Accept').order_by('-id')
